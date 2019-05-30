@@ -1,2 +1,2 @@
-# cognition_conectomics_TLE
-Code and data bases for Cruces R.R., Bernhard B.C. &amp; Concha L; 2019
+# Multidimensional Associations Between Cognition and Connectome Organization in Temporal Lobe Epilepsy
+Raúl Rodríguez-Cruces, Boris C. Bernhardt, Luis Concha
