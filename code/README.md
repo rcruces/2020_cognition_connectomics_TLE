@@ -8,7 +8,7 @@
 | `functions_cca.R`  | Functions for the regularized Canonical Correlations Analysis  |
 | `functions_extra.R`  | Additional functions  |
 
-The `R` code was test and run on `R` version 3.4.4 and is actually being tested in the lastes version 3.6.2.  
+The `R` code was test and run on `R` version 3.4.4 and is actually being tested in the lastest version 3.6.2.  
 Additionally some R packages are required to be installed.  
 
 ``` R
