@@ -60,8 +60,8 @@ estim.regul.v2 <- function (X, Y, grid1 = NULL, grid2 = NULL, plt = TRUE) {
 estim.regul.v3 <- function (X, Y, grid1 = NULL, grid2 = NULL, plt = TRUE) {
   # Uses multicore for the loo procedure
   # Correct the dot product multiplication
-  # absolute value of the cross validation score
-  # adds a progress bar to the apply function
+  # Absolute value to find the maxmum cross validation score
+  # Adds a progress bar to the apply function
   require("foreach")
   require("doMC")
   require("CCA")
@@ -75,7 +75,6 @@ estim.regul.v3 <- function (X, Y, grid1 = NULL, grid2 = NULL, plt = TRUE) {
       c(as.vector(t(X[i, ])) %*% res$xcoef[, 1], as.vector(t(Y[i, ])) %*% res$ycoef[, 1])}
     CVs <-matrix(unlist(CVs),n,2,byrow = TRUE)
     cv = abs(cor(as.vector(CVs[,1]), as.vector(CVs[,2]), use = "pairwise"))
-    #print(paste(cv,"Leaving one out for lambda1:",lambda1,"and lambda2:",lambda2))
     return(invisible(cv))
   }
   
@@ -86,7 +85,7 @@ estim.regul.v3 <- function (X, Y, grid1 = NULL, grid2 = NULL, plt = TRUE) {
     grid2 = seq(0.001, 1, length = 5)
   }
   grid = expand.grid(grid1, grid2)
-  
+  print(paste('[INFO] ... Estimation of the optimal regularization parameters out of',dim(grid)[1],'combinations'))
   res = pbapply(grid, 1, function(x) {
     loo(X, Y, x[1], x[2])
   })
