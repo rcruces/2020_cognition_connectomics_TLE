@@ -426,7 +426,7 @@ img.matcor2 <- function (correl, type = 1, Col, Xmain, Ymain) {
 
 # -------------------------------------------------------------------------------------------------------------------------- #
 #  rCCA.plots - Barplot of canonical correlations
-plot.cor <- function (IC,Title){
+plot.cor <- function (IC,Title='Canonical correlations'){
   require(extrafont)
   par(family="Verdana")
   Col <- ifelse(IC[1:9,4]<=0.05,"gray35","gray")
@@ -461,7 +461,7 @@ plot.scores <- function (rCCA,Cog,Title,Clust,sm){
 
 # -------------------------------------------------------------------------------------------------------------------------- #
 # rCCA.plots -  Y loadigs Cognitive Scores Stick & Ball
-sort.Yloads <- function(rCCA,IC,Xlim,Title){
+sort.Yloads <- function(rCCA,IC,Xlim=c(-1,1),Title='Y loadigs'){
   require(extrafont)
   require(RColorBrewer)
   par(family="Verdana")
