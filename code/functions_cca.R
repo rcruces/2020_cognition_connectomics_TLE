@@ -103,7 +103,7 @@ estim.regul.v3 <- function (X, Y, grid1 = NULL, grid2 = NULL, plt = TRUE) {
 
 # -------------------------------------------------------------------------------------------------------------------------- #
 # rCCA.stats - Statistics for regularized Canonical Correlations
-rcca.stats <- function(X, Y, l1, l2, Nrep){
+rcca.stats <- function(X, Y, l1, l2, Nrep=1000){
   start.time <- Sys.time()
   require(CCA)
   require(candisc)
@@ -118,9 +118,9 @@ rcca.stats <- function(X, Y, l1, l2, Nrep){
     # Cognitive loadings dimension 1 & Canonical correlations
     c(rcca$cor, abs(rcca$scores$corr.Y.xscores[,1]), abs(rcca$scores$corr.X.xscores[,1]))
   }
-  
+  if (Nrep<1000) {print('WARNING ... confidence interval and significance might be compromise with Nrep lower than 1000')}
   # Run bootstrap
-  print(paste("Running",Nrep,"bootstraps"))
+  print(paste("[INFO] ... Running",Nrep,"bootstraps in rcca"))
   bcca <- boot(X, statistic = boot.cca, R=Nrep)
   # Gets the CI fot each variable
   ci <- matrix(NA,nrow = length(bcca$t0),ncol = 3)
@@ -135,10 +135,11 @@ rcca.stats <- function(X, Y, l1, l2, Nrep){
   # Conditional test
   if (dim(ci)[2] < 3) {print("Something is wrong with the bootstrap you might need more Nboot, minimum 1000")}
   
-  print("Bootstrap for CI .... DONE")
+  print("[DONE] ... Bootstrap for Confidence Intervals")
   
   # --------------------------------------------------------------------------
   # Estimates the null distribution with Permutation for significance (p-value)
+  print(paste("[INFO] ... Running",Nrep,"permutations in rcca"))
   ## CCA permutation testing
   Pcca <- list(ccor=matrix(NA,nrow = dim(Y)[2],ncol = Nrep),
                Yperm=matrix(NA,nrow = dim(Y)[2],ncol = Nrep),
@@ -148,16 +149,18 @@ rcca.stats <- function(X, Y, l1, l2, Nrep){
   
   ## CCA permutation testing with iteration
   n <- dim(X)[1]
+  # create progress bar
+  pb <- txtProgressBar(min = 0, max = Nrep, style = 3)
   for (j in 1:Nrep){
-    # We labeled XY rows as random
-    Xi <- sample(1:n,replace = FALSE)
-    Yi <- sample(1:n,replace = FALSE)
-    #cca.perm <- rcc(X[Xi,], Y[Yi,], lambda1 = l1, lambda2 = l2)
-    cca.perm <- rcc(X, Y[Yi,], lambda1 = l1, lambda2 = l2)
+    # We labeled Rows as random to create a Null distribution
+    Rowi <- sample(1:n,replace = FALSE)
+    cca.perm <- rcc(X, Y[Rowi,], lambda1 = l1, lambda2 = l2)
     Pcca$ccor[,j] <- cca.perm$cor
     Pcca$Yperm[,j] <- cca.perm$scores$corr.Y.xscores[,1]
     Pcca$Xperm[,j] <- cca.perm$scores$corr.X.xscores[,1]
-    print(paste("Running permutation",j))
+    #print(paste("Running permutation",j))
+    # update progress bar
+    setTxtProgressBar(pb, j)
   }
   
   # Computational Time
@@ -165,7 +168,7 @@ rcca.stats <- function(X, Y, l1, l2, Nrep){
   time.taken <- end.time - start.time
   print(time.taken)
   
-  # get FWE-corrected pvalues
+  # get pvalues
   res.rcc <- rcc(X,Y,l1,l2)
   grotR <- res.rcc$cor
   pval.cor <- rep(0,length(grotR))
