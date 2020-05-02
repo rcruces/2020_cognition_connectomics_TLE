@@ -13,10 +13,10 @@ The [`R`](https://www.r-project.org) code was test and run on version 3.4.4 and 
 Additionally some R packages are required to be installed.  
 
 ``` R
-require(CCA)
-require(scales)
-require(candisc)
-require(boot)
-require(foreach)
-require(doMC)
+install.packages(CCA)
+install.packages(scales)
+install.packages(candisc)
+install.packages(boot)
+install.packages(foreach)
+install.packages(doMC)
 ````
