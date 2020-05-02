@@ -13,10 +13,17 @@ The [`R`](https://www.r-project.org) code was test and run on version 3.4.4 and 
 Additionally some R packages are required to be installed.  
 
 ``` R
-install.packages(CCA)
+# Ploting parameters
 install.packages(scales)
+
+# Canonical correlations analysis
+install.packages(CCA)
 install.packages(candisc)
+
+# Bootstrap
 install.packages(boot)
+
+# Parallel computation
 install.packages(foreach)
 install.packages(doMC)
 ````
