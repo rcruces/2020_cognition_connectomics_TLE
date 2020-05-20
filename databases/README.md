@@ -1,6 +1,8 @@
 # Multidimensional Associations Between Cognition and Connectome Organization in Temporal Lobe Epilepsy
 
 ## `./databases`  
+> Note: all ROI numbering in the databases are relative to parcellation [`Destrieux+VolBrain_162`](https://github.com/rcruces/2020_cognition_connectomics_TLE/blob/master/databases/Destrieux%2BVolBrain_162_LUT.csv).  
+  
 | **Filename**                   | **Class**       | **Description**                                                                                    |
 |--------------------------------|-----------------|----------------------------------------------------------------------------------------------------|
 | [`Destrieux+VolBrain_162_LUT.csv`](https://github.com/rcruces/2020_cognition_connectomics_TLE/blob/master/databases/Destrieux%2BVolBrain_162_LUT.csv) | Lookup table    | ROI labels created by merging the dextrieux (cortical) and volbrain (subcortical) parcellations.   |
