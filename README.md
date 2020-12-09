@@ -9,8 +9,7 @@ Luis Concha [lconcha@unam.mx](mailto:lconcha@unam.mx)
 **OSF:**  
 **Preprint:** avaliable at [bioRxiv doi: https://doi.org/10.1101/675884](https://www.biorxiv.org/content/10.1101/675884v3.abstract).   
     
-Abstract
-========
+## Abstract
 **Objective.** Temporal lobe epilepsy (TLE) is known to affect large-scale structural networks and cognitive function in multiple domains. The study of complex relations between structural network organization and cognition requires comprehensive analytical methods and a shift towards multivariate techniques. Here, we sought to identify multidimensional associations between cognitive performance and structural network topology in TLE.  
   
 **Methods.** We studied 34 drug-resistant adult TLE patients and 25 age- and sex-matched healthy controls. Participants underwent a comprehensive neurocognitive battery and multimodal MRI, allowing for large-scale connectomics, and morphological evaluation of subcortical and neocortical regions. Using canonical correlation analysis, we identified a multivariate mode that links cognitive performance to a brain structural network. Our approach was complemented by bootstrap-based hierarchical clustering to derive cognitive subtypes and associated patterns of macroscale connectome anomalies.  
@@ -19,8 +18,7 @@ Abstract
   
 **Conclusions.** Our multivariate approach emphasized a close coupling of cognitive dysfunction and large-scale network anomalies in TLE. Our findings contribute to understand the complexity of structural connectivity regulating the heterogeneous cognitive deficits found in epilepsy.  
   
- Repository content
- ==================
+ ## Repository content
  | Directories   | Description                                                                                                                                                                                                                                                                             |
 |---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`./code`](https://github.com/rcruces/2020_cognition_connectomics_TLE/tree/master/code)      | `bash` functions for the connectome processing and R code for the rCCA and BASC analysis.                                                                                                                                                                                               |
