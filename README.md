@@ -1,5 +1,6 @@
 # Multidimensional Associations Between Cognition and Connectome Organization in Temporal Lobe Epilepsy
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/4293e4fe51114d02bb930c7d4b28f78b)](https://www.codacy.com/gh/rcruces/2020_cognition_connectomics_TLE/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rcruces/2020_cognition_connectomics_TLE&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/4293e4fe51114d02bb930c7d4b28f78b)](https://www.codacy.com/gh/rcruces/2020_cognition_connectomics_TLE/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rcruces/2020_cognition_connectomics_TLE&amp;utm_campaign=Badge_Grade)  
+
 Raúl Rodríguez-Cruces  [raul.rodriguezcruces@mcgill.ca](mailto:raul.rodriguezcruces@mcgill.ca) & [raulrcruces@gmail.com](mailto:raulrcruces@gmail.com)  
 Boris C. Bernhardt  [boris.bernhardt@mcgill.ca](mailto:boris.bernhardt@mcgill.ca)  
 Luis Concha [lconcha@unam.mx](mailto:lconcha@unam.mx)  
