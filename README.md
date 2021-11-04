@@ -8,7 +8,6 @@ Luis Concha [lconcha@unam.mx](mailto:lconcha@unam.mx)
 **Cite:** Rodríguez-Cruces, R., Bernhardt, B. C., & Concha, L. (2020). Multidimensional associations between cognition and connectome organization in temporal lobe epilepsy. NeuroImage, 116706.  
 
 **DOI:** [j.neuroimage.2020.116706](https://doi.org/10.1016/j.neuroimage.2020.116706).  
-**OSF:**  
 **Preprint:** avaliable at [bioRxiv doi: https://doi.org/10.1101/675884](https://www.biorxiv.org/content/10.1101/675884v3.abstract).   
     
 ## Abstract
