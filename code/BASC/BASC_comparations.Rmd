@@ -1,0 +1,280 @@
+---
+title: "BASC Different samples & Regressors"
+author: "Raúl RC"
+date: "February 2, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, echo=FALSE, warning=FALSE, message=FALSE}
+library(dendextend)
+library(corrplot)
+setwd("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC")
+
+# FUNCTION: Read the bootstraped data
+read.basc <- function(Path){
+  # Loads the data
+  load(Path)
+  # Stabilization of the Final Sij_Boot matrix
+  Sij <- k10$Sij/k10$N
+  Sij <- Sij/max(Sij)
+  # Euclidean distance matrix
+  vec <- rownames(Sij)
+  d <- dist(Sij,method = "euclidean")
+  # Hierarchical Agglomerative Clustering: Ward D
+  hc <- hclust(d,method = "ward.D",members = vec)
+  #hc.dend <- as.dendrogram(hc)
+  # Get best partition from k10$k
+  K <- as.numeric(names(table(k10$k)[match(max(table(k10$k)),table(k10$k))]))
+  clusterBest <- cutree(hc, K)
+  return(list(Sij=Sij, hc=hc, clusterBest = clusterBest))
+}
+
+# FUNCTION: Compares two hclust objects
+comp.clust <- function(hc1, hc2){
+  # Compares two hclust objects, is the subjects are the same
+  dend.obj1 <- as.dendrogram(hc1)
+  dend.obj2 <- as.dendrogram(hc2)
+  # Modify the dendrogram to have cluster-based colors in the branches and labels
+  Col <- c("darkgoldenrod2","darkblue","seagreen")
+  dend.obj1 <- dend.obj1 %>% 
+    # color_branches(dend.obj1,col=Col,k=3) %>% 
+    # color_labels(dend.obj1,col=Col,k=3) %>% 
+    set("branches_lwd", 3)
+  dend.obj2 <- dend.obj2 %>% 
+    # color_branches(dend.obj2,col=Col,k=3) %>% 
+    # color_labels(dend.obj2,col=Col,k=3) %>% 
+    set("branches_lwd", 3)
+  # Baker's Gamma Index
+  print(paste("Baker's Index:",cor_bakers_gamma(dend.obj1,dend.obj2)))
+  # Entanglement
+  print(paste("Entanglement:",entanglement(dend.obj1,dend.obj2)))
+  # Plot the edges differences
+  dend_diff(dend.obj1, dend.obj2)
+  # Create a list of dendrograms and a plots the tanglegram
+  dend.ls <- dendlist(dend.obj1, dend.obj2)
+  # Plot the tanglegram
+  tanglegram(dend.ls,common_subtrees_color_branches = TRUE)
+}
+
+# FUNCTION: barplot of the model's best partition
+plot.clust <- function(clust.best, Main){
+  clust.best <- table(clust.best)
+  # Function to plot the number of observations per stack
+  plot.n <- function(Values,y.pos,Space) {
+    labs<- paste(Values, sep="")
+    text(seq(from=0.5+Space,by = 1+Space,length.out = length(Values)),y.pos,labs, col="white",cex=1.5)}
+  # Barplot of the clusters
+  Space=0.05
+  Col <- c("darkgoldenrod2","seagreen","darkblue")
+  barplot(clust.best,space = Space,col = Col, border = Col, main= Main)
+  plot.n(clust.best, clust.best/2,Space)
+}
+
+# FUNCTION plot lines and dots from Sij
+cluster.test <- function(Sij, Main) {
+  source("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/functions.R")
+  source("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/BASC_func.R")
+  par(mfrow=c(1,3))
+  # Calculo de la matriz de distancias euclidenanas
+  vec <- rownames(Sij)
+  d <- dist(Sij,method = "euclidean")
+  # Método de Cluster
+  hc <- hclust(d,method = "ward.D",members = vec)
+  hc.dend <- as.dendrogram(hc)
+  # Color the first sbranch in golden... the second sub-branch in green and the second sub-branch  in blue
+  colbranches <- function(n, col) {
+    a <- attributes(n) # Find the attributes of current node
+    # Color edges with requested color
+    attr(n, "edgePar") <- c(a$edgePar, list(col=col, lwd=2))
+    n }
+  hc.dend[[1]] = dendrapply(hc.dend[[1]], colbranches, "darkgoldenrod2")
+  hc.dend[[2]][[2]] = dendrapply(hc.dend[[2]][[2]], colbranches, "seagreen")
+  hc.dend[[2]][[1]] = dendrapply(hc.dend[[2]][[1]], colbranches, "darkblue")
+  # Dendrogram
+  #plot(hc.dend,xlab="",main=Main,col.main="black",cex.main=3,col="black",lwd=4,axes = TRUE,ylab="High", horiz = TRUE)
+  # -------------------------------------------------------------- #
+  # Load data
+  load.npsy <- function() {
+    source("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/functions.R")
+    source("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/BASC_func.R")
+    Npsy <- read.csv("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/neuropsy.csv")
+    Npsy.z <- Npsy[,c("urm","group","IQ","VCI","PR","PS","WMI","VMI","VWMI","IMI","DMI","AMI")]
+    # Create a Z-score based on controls for each cognitive variable
+    controls <- which(Npsy.z$group == "ctrl")
+    Npsy.z[,3:12] <- apply(Npsy.z[,3:12], 2, function(x) Zscore(x[controls],x))
+    return(Npsy.z)
+  }
+  #### Blank Plot ####
+  blank.plot <- function (x,lab,Main,pts) {
+  Ax.Col="black"
+  Main <- as.character(Main)
+  plot(rep(1,length(pts[[1]][,1])),pts[[1]][,1],ylim=c(-8,4),xlim = c(0,max(x)+1),pch=19,ylab="Z-score",main=Main,col=NA,xaxt='n',bty='n',xlab="",axes = FALSE,
+       las=1,col.axis=Ax.Col,col.lab=Ax.Col,col.main=Ax.Col,cex.axis=1.2,cex=seq(0.5,1.5,length.out = 35),cex.main=3)
+  axis(1, at=x, col.axis=Ax.Col,labels=lab, lty=1, col=Ax.Col, las=1,lwd=3,cex.axis=1,col.lab=Ax.Col)
+  axis(2, at=seq(-8,4,4), labels=seq(-8,4,4), lty=1, col.axis=Ax.Col,las=1,lwd=3,cex.axis=1.2,col.lab=Ax.Col,col=Ax.Col)
+  abline(h=c(-2,0,2),col=addTrans(Ax.Col,30),lty=4,lwd=3)
+  mtext("WAIS",side = 1,at = 3,cex = 1.5,col=Ax.Col,line = 3)
+  mtext("WMS",side = 1,at = 9,cex = 1.5,col=Ax.Col,line = 3)}
+
+  # -------------------------------------------------------------- #
+  # Plots of each cluster
+  # Selecciona solo 3 clusters
+  cases <- load.npsy()
+  clusterBest <- cutree(hc, 3)
+  clust.ID<-as.data.frame(cbind(clusterBest,names(clusterBest)))
+  colnames(clust.ID)<-c("clust","urm")
+  cases <- merge(cases,clust.ID,by="urm")
+  x <- 1:10
+  len <- length(cases)
+  pts <- list(cases[,3:12])
+  lab <- colnames(cases[,3:12])
+  blank.plot(x,lab,paste(Main,"1"),pts)
+  plotLines(cases[cases$clust == "1",][3:12],"darkgoldenrod2",x)
+  blank.plot(x,lab,"Cluster 2",pts)
+  plotLines(cases[cases$clust == "2",][3:12],"seagreen",x)
+  blank.plot(x,lab,"Cluster 3",pts)
+  plotLines(cases[cases$clust == "3",][3:12],"darkblue",x)
+}
+```
+
+# BASC Robustness  
+  
+## BASC robustness: Same sample  
+Testing the clustering similarity of the 34 subjects sample runned twice.
+```{r robustness, echo=FALSE}
+comp.clust(read.basc("models/10k_34subjs.RData")$hc,read.basc("models/10k_34subjs_B.RData")$hc)
+```
+
+## BASC Robustness: Same sample + laterality 
+Testing the clustering similarity of the 34 subjects: One sample WAIS and WMS indexes, the  other adding  laterality .
+```{r, echo =FALSE, warning=FALSE}
+comp.clust(read.basc("models/10k_34subjs.RData")$hc,read.basc("models/10k_34subjs_LAT.RData")$hc)
+```
+
+## BASC robustness: Laterality flipped
+Testing the clustering similarity of the 34 subjects: One sample WAIS and WMS indexes with laterality coded for both left -1 and 1.
+```{r, echo =FALSE, warning=FALSE}
+comp.clust(read.basc("models/10k_34subjs_LAT.RData")$hc,read.basc("/misc/ernst/rcruces/git_here/epilepsia_processing/databases/basc_latFLIP.RData")$hc)
+```
+
+  
+## Stability Matrices: Only Index & Index + Laterality  
+```{r, echo =FALSE, warning=FALSE}
+library(corrplot)
+par(mfrow=c(1,2))
+# Color palette
+colC <- colorRampPalette(c("gold","darkgoldenrod2","seagreen","royalblue4","white","white","white","royalblue4","seagreen","darkgoldenrod2","gold"))
+# Plot Stability matrix
+obj <- corrplot(read.basc("models/10k_34subjs.RData")$Sij,order="hclust",tl.col="black",method="color",addgrid.col=NA,col=colC(100),is.corr = FALSE,cl.lim = c(0,1))
+ord <- colnames(obj)
+# Objects with the model with laterality
+basc.lat <-  read.basc("models/10k_34subjs_LAT.RData")$Sij
+idx <- match(ord,colnames(basc.lat))
+try(corrplot(basc.lat[idx,idx],tl.col="black",method="color",addgrid.col=NA,col=colC(100),is.corr = FALSE,cl.lim = c(0,1)))
+```
+
+# BASC: Distribution of the number of Clusters  
+```{r Nclusters, echo=FALSE, fig.height=8, fig.width=13}
+setwd("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/models")
+# READ ALL DATA
+# I removed the repeated models and the ones that are very very bad
+files <- list.files(pattern = "10k_")[-c(17,8)]
+# Reorder for better visualization of barplots
+files <- files[c(1:7,19,8:18,20:21)]
+noms <- sapply( strsplit( sapply(strsplit(files, split='10k_', fixed=TRUE), function(x) (x[2])), split = ".RData"), function(x) (x[1]))
+
+# Clusterization distribution
+func.test <- function(Path, Name){
+   k10 <- read.basc(Path)
+   plot.clust(k10$clusterBest, Main= Name)}
+par(mfrow=c(3,7))
+for (i in 1:length(files)) {func.test(files[i],noms[i])}
+
+# Compares 34 subject sample vs 34 subjects sample+AGE
+#comp.clust(read.basc("10k_34subjs_age.RData")$hc,read.basc("10k_34subjs.RData")$hc)
+# Compares 33 subject+EDU+HS sample vs 33 subjects sample+EDU
+#comp.clust(read.basc("10k_33subjs_edu-hs.RData")$hc,read.basc("10k_33subjs_edu.RData")$hc)
+
+```
+
+# BASC: Distribution of the number of Clusters 
+```{r matrices, echo=FALSE, warning=FALSE, message=FALSE, fig.height=6, fig.width=6}
+setwd("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/models")
+# DATA MATRIX OF SUBJECT X MODEL
+subjs2mtx <- function(N){
+  N <- as.character(N)
+  # Creates the data frame
+  clusters <- data.frame(as.integer(names(read.basc(files[grep(N,files)][1])$clusterBest)))
+  # Data frame's names
+  colN <- "urm"
+  # Reads every clusterization
+  for (i in grep(N,files)) {
+    k10 <- read.basc(files[i])
+    clusters <- cbind(clusters, k10$clusterBest)
+    colN <- c(colN, noms[i]) }
+  # Column's names
+  colnames(clusters) <- colN
+  return(clusters)
+}
+# Merges all clusters in one matrix
+basc.models <- merge(subjs2mtx(34),subjs2mtx(33),by="urm", all=TRUE)
+basc.models <- merge(basc.models, subjs2mtx(31),by="urm", all=TRUE)
+# Adding IQ for sorting
+basc.models <- merge(read.csv("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/neuropsy.csv")[,c(1,8)],basc.models, by="urm")
+basc.models$IQ <- as.numeric(scale(basc.models$IQ))
+# NA to zero for plotting
+basc.models[is.na(basc.models)] <- 0
+# Rownames as ID
+rownames(basc.models) <- basc.models$urm
+
+#### OHBM sample vs BASC: ROBUSTNESS #### 
+# s31.ohbm <- read.csv("/misc/ernst/rcruces/Dropbox/linuxook/oma/cases_Zclust.csv")
+# s31.ohbm <- s31.ohbm[s31.ohbm$clust !=0,c(20,9)]
+# colnames(s31.ohbm) <- c("urm","s31.ohbm")
+# s31.ohbm <- merge(basc.models[c(1,22)],s31.ohbm,by="urm")
+# s31.ohbm[2] == s31.ohbm[3]
+# CONCLUSION: IS SUPER REPRODUCTIBLE aka THE SAME
+
+# Agroup per model for visualization purposes
+basc.models <- basc.models[c("urm","IQ","34subjs_LAT","31subjs_ohbm","34subjs",
+                             "33subjs_age","31subjs_age","34subjs_age",
+                              "33subjs",
+                              "34subjs_sex","33subjs_sex","31subjs_sex",
+                              "34subjs_edu","33subjs_edu","31subjs_edu",
+                              "34subjs_edu-hs","33subjs_edu-hs","31subjs_edu-hs",
+                              "34subjs_age-edu-sex-hs","31subjs_age-edu-sex-hs",
+                              "34subjs_hs","33subjs_hs","31subjs_hs")]
+
+# VISUALIZATION OF DATA MATRIX OF SUBJECT X MODEL
+# Sorted from Lower to higher IQ
+library(corrplot)
+colC <- colorRampPalette(c("white","white","white","white","forestgreen","darkblue","red"))
+corrplot(as.matrix(basc.models[order(basc.models$IQ),3:23]),is.corr = FALSE,method = "color",col=colC(100),tl.col="black",addgrid.col = NA,cl.pos = "n")
+# Heat map of basc models with dendrograms
+library(gplots)
+heatmap.2(as.matrix(basc.models[order(basc.models$IQ),3:23]),trace="none",dendrogram='both',Rowv=TRUE,Colv=TRUE,col=c("forestgreen","darkblue","red"),main = "Clusters clusterized")
+```
+
+
+# BASC: Distribution between n=34 
+```{r echo=FALSE,warning=FALSE,message=FALSE,fig.height=4, fig.width=12}
+setwd("/misc/ernst/rcruces/git_here/micasoft/sandbox/raul/BASC/models")
+# BARPLOT of each subjects distribution
+par(mfrow=c(1,4))
+for (i in c(20,8,6)) {func.test(files[i],noms[i])}
+func.test("/misc/ernst/rcruces/git_here/epilepsia_processing/databases/basc_latFLIP.RData","Lateralized Flipped")
+# basc models
+basc.hbm <-  read.basc("10k_31subjs_ohbm.RData")$Sij
+basc.n34 <-  read.basc("10k_34subjs.RData")$Sij
+basc.flp <-  read.basc("/misc/ernst/rcruces/git_here/epilepsia_processing/databases/basc_latFLIP.RData")$Sij
+
+# Lines and dots 
+cluster.test(basc.hbm,"n=31 OHBM sample")
+cluster.test(basc.lat,"n=34 with Lateralization")
+cluster.test(basc.lat,"n=34 with Lateralization Flipped")
+cluster.test(basc.n34,"n=34 WAIS & WSM")
+```
